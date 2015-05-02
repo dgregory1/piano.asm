@@ -11,7 +11,7 @@ keyboard_row2    db        10,13,'| |  |w|  |  |r| |t|  |  |u| |i| |o|  ||$'
 keyboard_row3    db        10,13,'| | A | B | C | D | E | F | G | A | B ||$'
 keyboard_row4    db        10,13,'| | a | s | d | f | g | h | j | k | l ||$'
 info_text        db        10,13,'| x=exit    < or > =move octave        |$'
-brand_text        db        10,13,'|      BlameCo Pianos & Organs           |$'
+brand_text        db        10,13,'|      BlameCo Pianos & Organs         |$'
 newline            db        10,13, '$'
 ;divider            dd        1234deh ;123428;
 frequency        dw        0d
@@ -55,7 +55,9 @@ add        si,ax
 xor        ebx,ebx
 mov        bx,[si]
 mov        frequency,bx
-call    play_sound
+call	   clear_screen
+call	   print_pressed_keyboard
+call       play_sound
 
 jmp        play_loop
 
@@ -119,7 +121,6 @@ print_out endp
 
 print_keyboard proc
 ; prints out a plain keboard, without showing any keys as pressed
-call    print_ln
 mov        dx,offset keyboard_ledge
 call    print_out
 mov        dx,offset brand_text
@@ -144,6 +145,439 @@ call    print_ln
 ret
 print_keyboard endp
 
+;------------------------------------
+print_pressed_keyboard proc
+;prints keyboard with pressed key (in al) in different color (yellow)
+;preserves registers
+push	ax
+push	bx
+push	cx
+push	dx
+mov		bl, al
+call    print_ln
+mov        dx,offset keyboard_ledge
+call    print_out
+mov        dx,offset brand_text
+call    print_out
+mov        dx, offset info_text
+call    print_out
+mov        dx, offset keyboard_ledge
+call    print_out
+
+;row_1
+mov		dx, offset keyboard_row1
+call	print_out
+call	print_ln
+
+;row_2
+mov		dl, '|'
+mov		ah, 02h
+int		21h
+mov		dl, ' '
+int		21h
+mov		dl, '|'
+int		21h
+mov		dl, ' '
+int		21h
+int		21h
+cmp		bl, 'w'
+jnz		not_w
+mov		dl, '|'
+call	key_pressed
+int		21h
+mov		dl, 'w'
+call	key_pressed
+int		21h
+mov		dl, '|'
+call	key_pressed
+int		21h
+mov		dl, ' '
+int		21h
+int		21h
+mov		dl, '|'
+int		21h
+mov		dl, ' '
+int		21h
+int		21h
+jmp		not_r
+not_w:
+mov		dl, '|'
+int		21h
+mov		dl, 'w'
+int		21h
+mov		dl, '|'
+int		21h
+mov		dl, ' '
+int		21h
+int		21h
+mov		dl, '|'
+int		21h
+mov		dl, ' '
+int		21h
+int		21h
+cmp		bl, 'r'
+jnz		not_r
+mov		dl, '|'
+call	key_pressed
+int		21h
+mov		dl, 'r'
+call	key_pressed
+int		21h
+mov		dl, '|'
+call	key_pressed
+int		21h
+mov		dl, ' '
+int		21h
+jmp		not_t
+not_r:
+mov		dl, '|'
+int		21h
+mov		dl, 'r'
+int		21h
+mov		dl, '|'
+int		21h
+mov		dl, ' '
+int		21h
+cmp		bl, 't'
+jnz		not_t
+mov		dl, '|'
+call	key_pressed
+int		21h
+mov		dl, 't'
+call	key_pressed
+int		21h
+mov		dl, '|'
+call	key_pressed
+int		21h
+mov		dl, ' '
+int		21h
+int		21h
+mov		dl, '|'
+int		21h
+mov		dl, ' '
+int		21h
+int		21h
+jmp		not_u
+not_t:
+mov		dl, '|'
+int		21h
+mov		dl, 't'
+int		21h
+mov		dl, '|'
+int		21h
+mov		dl, ' '
+int		21h
+int		21h
+mov		dl, '|'
+int		21h
+mov		dl, ' '
+int		21h
+int		21h
+cmp		bl, 'u'
+jnz		not_u
+mov		dl, '|'
+call	key_pressed
+int		21h
+mov		dl, 'u'
+call	key_pressed
+int		21h
+mov		dl, '|'
+call	key_pressed
+int		21h
+mov		dl, ' '
+int		21h
+jmp		not_i
+not_u:
+mov		dl, '|'
+int		21h
+mov		dl, 'u'
+int		21h
+mov		dl, '|'
+int		21h
+mov		dl, ' '
+int		21h
+cmp		bl, 'i'
+jnz		not_i
+mov		dl, '|'
+call	key_pressed
+int		21h
+mov		dl, 'i'
+call	key_pressed
+int		21h
+mov		dl, '|'
+call	key_pressed
+int		21h
+mov		dl, ' '
+int		21h
+jmp		not_o
+not_i:
+mov		dl, '|'
+int		21h
+mov		dl, 'i'
+int		21h
+mov		dl, '|'
+int		21h
+mov		dl, ' '
+int		21h
+cmp		bl, 'o'
+jnz		not_o
+mov		dl, '|'
+call	key_pressed
+int		21h
+mov		dl, 'o'
+call	key_pressed
+int		21h
+mov		dl, '|'
+call	key_pressed
+int		21h
+jmp		end_row_2
+not_o:
+mov		dl, '|'
+int		21h
+mov		dl, 'o'
+int		21h
+mov		dl, '|'
+int		21h
+end_row_2:
+mov		dl, ' '
+int		21h
+int		21h
+mov		dl, '|'
+int		21h
+int		21h
+
+;row_3
+mov		dx, offset keyboard_row3
+call	print_out
+call	print_ln
+
+;row_4
+mov		ah, 02h
+mov		dl, '|'
+int		21h
+mov		dl, ' '
+int		21h
+mov		dl, '|'
+int		21h
+mov		dl, ' '
+int		21h
+cmp		bl, 'a'
+jnz		not_a
+mov		dl, 'a'
+call	key_pressed
+int		21h
+mov		dl, ' '
+int		21h
+mov		dl, '|'
+int		21h
+mov		dl, ' '
+int		21h
+jmp		not_s
+not_a:
+mov		dl, 'a'
+int		21h
+mov		dl, ' '
+int		21h
+mov		dl, '|'
+int		21h
+mov		dl, ' '
+int		21h
+cmp		bl, 's'
+jnz		not_s
+mov		dl, 's'
+call	key_pressed
+int		21h
+mov		dl, ' '
+int		21h
+mov		dl, '|'
+int		21h
+mov		dl, ' '
+int		21h
+jmp		not_d
+not_s:
+mov		dl, 's'
+int		21h
+mov		dl, ' '
+int		21h
+mov		dl, '|'
+int		21h
+mov		dl, ' '
+int		21h
+cmp		bl, 'd'
+jnz		not_d
+mov		dl, 'd'
+call	key_pressed
+int		21h
+mov		dl, ' '
+int		21h
+mov		dl, '|'
+int		21h
+mov		dl, ' '
+int		21h
+jmp		not_f
+not_d:
+mov		dl, 'd'
+int		21h
+mov		dl, ' '
+int		21h
+mov		dl, '|'
+int		21h
+mov		dl, ' '
+int		21h
+cmp		bl, 'f'
+jnz		not_f
+mov		dl, 'f'
+call	key_pressed
+int		21h
+mov		dl, ' '
+int		21h
+mov		dl, '|'
+int		21h
+mov		dl, ' '
+int		21h
+jmp		not_g
+not_f:
+mov		dl, 'f'
+int		21h
+mov		dl, ' '
+int		21h
+mov		dl, '|'
+int		21h
+mov		dl, ' '
+int		21h
+cmp		bl, 'g'
+jnz		not_g
+mov		dl, 'g'
+call	key_pressed
+int		21h
+mov		dl, ' '
+int		21h
+mov		dl, '|'
+int		21h
+mov		dl, ' '
+int		21h
+jmp		not_h
+not_g:
+mov		dl, 'g'
+int		21h
+mov		dl, ' '
+int		21h
+mov		dl, '|'
+int		21h
+mov		dl, ' '
+int		21h
+cmp		bl, 'h'
+jnz		not_h
+mov		dl, 'h'
+call	key_pressed
+int		21h
+mov		dl, ' '
+int		21h
+mov		dl, '|'
+int		21h
+mov		dl, ' '
+int		21h
+jmp		not_j
+not_h:
+mov		dl, 'h'
+int		21h
+mov		dl, ' '
+int		21h
+mov		dl, '|'
+int		21h
+mov		dl, ' '
+int		21h
+cmp		bl, 'j'
+jnz		not_j
+mov		dl, 'j'
+call	key_pressed
+int		21h
+mov		dl, ' '
+int		21h
+mov		dl, '|'
+int		21h
+mov		dl, ' '
+int		21h
+jmp		not_k
+not_j:
+mov		dl, 'j'
+int		21h
+mov		dl, ' '
+int		21h
+mov		dl, '|'
+int		21h
+mov		dl, ' '
+int		21h
+cmp		bl, 'k'
+jnz		not_k
+mov		dl, 'k'
+call	key_pressed
+int		21h
+mov		dl, ' '
+int		21h
+mov		dl, '|'
+int		21h
+mov		dl, ' '
+int		21h
+jmp		not_l
+not_k:
+mov		dl, 'k'
+int		21h
+mov		dl, ' '
+int		21h
+mov		dl, '|'
+int		21h
+mov		dl, ' '
+int		21h
+cmp		bl, 'l'
+jnz		not_l
+mov		dl, 'l'
+call	key_pressed
+int		21h
+mov		dl, ' '
+int		21h
+jmp		end_row_4
+not_l:
+mov		dl, 'l'
+int		21h
+mov		dl, ' '
+int		21h
+end_row_4:
+mov		dl, '|'
+int		21h
+int		21h
+
+mov     dx,offset keyboard_ledge
+call    print_out
+
+call    print_ln
+call    print_ln
+
+pop		dx
+pop		cx
+pop		bx
+pop		ax
+ret
+print_pressed_keyboard endp
+
+;-----------------------------------
+key_pressed proc
+;prints pressed key in yellow
+;preserves registers
+push	ax
+push	bx
+push	cx
+push	dx
+mov		ah, 09h
+mov		bx, 0eh
+mov		cx, 01h
+int		10h
+pop		dx
+pop		cx
+pop		bx
+pop		ax
+ret
+key_pressed endp
 ;-----------------------------------
 speakers_on proc
 in      al,061h                   ;get port 61h contents
@@ -224,17 +658,37 @@ play_sound endp
 
 clear_screen    proc
 ;function exists to clear the screen and allow the possibility of highlighting a key
+;changed to save registers -- Dustin
+
+push	ax
+push	bx
+push	cx
+push	dx
+
+;didn't seem to work with print_pressed_keyboard, just used print_ln to fill the screen instead -- Dustin
+;mov        ah,06h  ; clear the screen
+;mov        al,07h
+;mov        dh,24
+;mov        dl,79
+;xor        cx,cx
+;int        010h
+
+xor		cx, cx
+count:
+inc		cx
+call	print_ln
+cmp		cx, 24
+jnz		count
+
 mov        ah,02h ; set the cursor to the top left
 xor        bx,bx
 xor        dx,dx
 int        10h
 
-mov        ah,06h  ; clear the screen
-mov        al,0fh
-mov        dh,80
-mov        dl,80
-xor        cx,cx
-int        010h
+pop		dx
+pop		cx
+pop		bx
+pop		ax
 ret
 clear_screen    endp
 
